@@ -62,6 +62,29 @@ bool is_adjacent(const string& word1, const string& word2) {
     return false;
 }
 
+bool edit_distance_within(const std::string& s1, const std::string& s2, int d) {
+    int n = s1.size(), m = s2.size();
+    if (abs(n - m) > d) return false;
+
+    std::vector<std::vector<int>> dp(n + 1, std::vector<int>(m + 1, 0));
+    for (int i = 0; i <= n; i++) {
+        dp[i][0] = i;
+    }
+    for (int j = 0; j <= m; j++) {
+        dp[0][j] = j;
+    }
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (s1[i - 1] == s2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = 1 + std::min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]});
+            }
+        }
+    }
+    return dp[n][m] <= d;
+}
+
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
     //edge cases
     if (begin_word == end_word) {
@@ -71,7 +94,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     if (word_list.find(end_word) == word_list.end()) {
         return {};
     }
-    
+
     //setting stuff up
     queue<vector<string>> lq;
     lq.push({ begin_word });
