@@ -4,6 +4,7 @@ struct Node {
     int cost;
     Node(int v, int c) : vertex(v), cost(c) {}
 };
+
 struct Compare {
     bool operator()(const Node& a, const Node& b) {
         return a.cost > b.cost;
@@ -19,7 +20,7 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
     dist[source] = 0;
     pq.push(Node(source, 0));
     vector<bool> visited(n, false);
-    
+
     while (!pq.empty()) {
         Node current = pq.top();
         pq.pop();
@@ -56,6 +57,5 @@ void print_path(const vector<int>& path, int total) {
     }
     cout << endl;
 
-    // Print "Total cost is X" on its own line.
     cout << "Total cost is " << total << endl;
 }
