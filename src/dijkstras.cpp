@@ -1,23 +1,25 @@
 #include "dijkstras.h"
+struct Node {
+    int vertex;
+    int cost;
+    Node(int v, int c) : vertex(v), cost(c) {}
+};
+struct Compare {
+    bool operator()(const Node& a, const Node& b) {
+        return a.cost > b.cost;
+    }
+};
 
 vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& previous) {
     int n = G.numVertices;
     vector<int> dist(n, INF);
     previous.assign(n, -1);
-    struct Node {
-        int vertex;
-        int cost;
-        Node(int v, int c) : vertex(v), cost(c) {}
-    };
-    struct Compare {
-        bool operator()(const Node& a, const Node& b) {
-            return a.cost > b.cost;
-        }
-    };
+
     priority_queue<Node, vector<Node>, Compare> pq;
     dist[source] = 0;
     pq.push(Node(source, 0));
     vector<bool> visited(n, false);
+    
     while (!pq.empty()) {
         Node current = pq.top();
         pq.pop();
@@ -38,25 +40,22 @@ vector<int> dijkstra_shortest_path(const Graph& G, int source, vector<int>& prev
 }
 
 vector<int> extract_shortest_path(const vector<int>&, const vector<int>& previous, int destination) {
-    vector<int> path;
-    int current = destination;
-    while (current != -1) {
-        path.push_back(current);
-        current = previous[current];
+    vector<int> pth;
+    int curr = destination;
+    while (curr != -1) {
+        pth.push_back(curr);
+        curr = previous[curr];
     }
-    reverse(path.begin(), path.end());
-    return path;
+    reverse(pth.begin(), pth.end());
+    return pth;
 }
 
 void print_path(const vector<int>& path, int total) {
-    if (path.empty() || total == INF) {
-        cout << "no path found" << endl;
-        return;
-    }
     for (size_t i = 0; i < path.size(); i++) {
-        if (i > 0) cout << " ";
-        cout << path[i];
+        cout << path[i] << " ";
     }
     cout << endl;
-    cout << "total cost: " << total << endl;
+
+    // Print "Total cost is X" on its own line.
+    cout << "Total cost is " << total << endl;
 }
