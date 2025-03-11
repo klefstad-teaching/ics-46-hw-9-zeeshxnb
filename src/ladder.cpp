@@ -1,11 +1,31 @@
 #include "ladder.h"
 
+void error(string word1, string word2, string msg) {
+    cerr << "error with the following words: \"" << word1 << "\" and \"" << word2 
+         << "\": " << msg << endl;
+}
+
+void load_words(set<string>& word_list, const string& file_name) {
+    ifstream in(file_name);
+    if (!in.is_open()) {
+        throw runtime_error("couldn't open file: " + file_name);
+    }
+    string word;
+    while (in >> word) {
+        for (char &c : word) {
+            c = tolower(c);
+        }
+        word_list.insert(word);
+    }
+    in.close();
+}
 
 void print_word_ladder(const vector<string>& ladder) {
     if (ladder.empty()) {
-        cout << "No ladder found." << endl;
+        cout << "no ladder found" << endl;
         return;
     }
+    
     for (size_t i = 0; i < ladder.size(); i++) {
         if (i > 0) cout << " -> ";
         cout << ladder[i];
