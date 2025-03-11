@@ -1,13 +1,14 @@
 #include "ladder.h"
 
 void error(string word1, string word2, string msg) {
-    cerr << "error with the following words: \"" << word1 << "\" and \"" << word2 
+    std::cout << "error with the following words: \"" << word1 << "\" and \"" << word2 
          << "\": " << msg << endl;
 }
 
 void load_words(set<string>& word_list, const string& file_name) {
     ifstream in(file_name);
     if (!in.is_open()) {
+        //error function works for words and not a general one so throw a runtime
         throw runtime_error("couldn't open file: " + file_name);
     }
     string word;
@@ -20,70 +21,42 @@ void load_words(set<string>& word_list, const string& file_name) {
     in.close();
 }
 
+//im stupid this is so much easier 
 bool is_adjacent(const string& word1, const string& word2) {
-    //edge case
-    if (word1 == word2) return true;
-
-    //setting variables
-    int length1 = (int)word1.size();
-    int length2 = (int)word2.size();
-    int diff = length1 - length2;
-
-    //if the length is the same
-    if (diff == 0) {
-        int countDiff = 0;
-        for (int i = 0; i < length1; i++) {
-            if (word1[i] != word2[i]) {
-                countDiff++;
-                if (countDiff > 1) return false;
-            }
-        }
-        return (countDiff <= 1);
-    } else if (diff == 1 || diff == -1) {
-
-        const string& wA = (length1 < length2) ? word1 : word2;
-        const string& wB = (length1 < length2) ? word2 : word1;
-        int indexA = 0, indexB = 0;
-        bool difference = false;
-
-        while (indexA < (int)wA.size() && indexB < (int)wB.size()) {
-            if (wA[indexA] != wB[indexB]) {
-                if (difference) {
-                    return false;
-                }
-                difference = true;
-                indexB++;
-            } else {
-                indexA++;
-                indexB++;
-            }
-        }
-        return true;
-    }
-    return false;
+    return edit_distance_within(word1, word2, 1);
 }
 
-bool edit_distance_within(const std::string& s1, const std::string& s2, int d) {
-    int n = s1.size(), m = s2.size();
-    if (abs(n - m) > d) return false;
+bool edit_distance_within(const std::string& str1, const std::string& str2, int d) {
+    int len1 = str1.length();
+    int len2 = str2.length();
 
-    std::vector<std::vector<int>> dp(n + 1, std::vector<int>(m + 1, 0));
-    for (int i = 0; i <= n; i++) {
-        dp[i][0] = i;
+    if (abs(len1 - len2) > d){
+        return false;      
     }
-    for (int j = 0; j <= m; j++) {
-        dp[0][j] = j;
-    }
-    for (int i = 1; i <= n; i++) {
-        for (int j = 1; j <= m; j++) {
-            if (s1[i - 1] == s2[j - 1]) {
-                dp[i][j] = dp[i - 1][j - 1];
-            } else {
-                dp[i][j] = 1 + std::min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]});
-            }
+    //index strings
+    int i = 0, j = 0;  
+    int diff = 0;      // track differences
+
+    while (i < len1 && j < len2) {
+        if (str1[i] != str2[j]) {
+            diff++;
+            if (diff > d) { return false; }
+
+            if (len1 > len2) { i++; }
+
+            else if (len1 < len2) { j++; }
+
+            else {i++, j++; }  
+
+        } else {
+            i++, j++;  
         }
     }
-    return dp[n][m] <= d;
+
+    diff += (len1 - i);
+    diff += (len2 - j);
+
+    return diff <= d;
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
